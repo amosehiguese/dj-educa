@@ -5,6 +5,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateResponseMixin, View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms.models import modelform_factory
+from braces.views import CsrfExemptMixin, JSONRequestResponseMixin
 from django.apps import apps
 from django.urls import reverse_lazy
 from .models import Course, Module, Content
@@ -144,3 +145,27 @@ class ContentDeleteView(View):
         content.item.delete()
         content.delete()
         return redirect("module_content_list", module.id)
+
+
+class ModuleContentListView(TemplateResponseMixin, View):
+    template_name = "courses/manage/module/content_list.html"
+
+    def get(self, request, module_id):
+        module = get_object_or_404(Module, id=module_id, course__owner=request.user)
+        return self.render_to_response({"module": module})
+
+
+class ModuleOrderView(CsrfExemptMixin, JSONRequestResponseMixin, View):
+    def post(self, request):
+        for id, order in self.request_json.items():
+            Module.objects.filter(id=id, course__owner=request.user).update(order=order)
+        return self.render_json_response({"saved": "OK"})
+
+
+class ContentOrderView(CsrfExemptMixin, JSONRequestResponseMixin, View):
+    def post(self, request):
+        for id, order in self.request_json.items():
+            Content.objects.filter(id=id, module__course__owner=request.user).update(
+                order=order
+            )
+        return self.render_json_response({"saved": "OK"})
