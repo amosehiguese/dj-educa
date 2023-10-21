@@ -102,4 +102,20 @@
             fetch(moduleOrderUrl, options)
         })
     })
+
+    const contentOrderUrl = "{% url "content_order" %}"
+
+    sortable("#module-contents", {
+        forcePlaceholderSize: true,
+        placeholderClass: 'placeholder'
+    })[0].addEventListener('sortupdate', (e)=>{
+        contentOrder = {}
+        let contents = document.querySelectorAll("#module-contents div")
+        contents.forEach((content, index)=>{
+            contentOrder[content.dataset.id] = index
+            options['body'] = JSON.stringify(contentOrder)
+
+            fetch(contentOrderUrl, options)
+        })
+    })
 {% endblock domready %}
