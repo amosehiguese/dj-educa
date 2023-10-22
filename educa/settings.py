@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "rest_framework",
+    "embed_video",
+    "students.apps.StudentsConfig",
     "courses.apps.CoursesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -126,3 +129,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+from django.urls import reverse_lazy
+
+LOGIN_REDIRECT_URL = reverse_lazy("student_course_list")
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+    ]
+}
